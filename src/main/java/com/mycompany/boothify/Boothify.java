@@ -42,8 +42,33 @@ public class Boothify {
         }
     }
     
+    public static void cetakNotaSewa(LayananBooth layanan){
+        System.out.println("\n----------------------------------------------");
+        System.out.println("          BOOTHIFY PHOTO BOOTH NOTA           \n");
+        layanan.tampilkanRincianSewa();
+        System.out.println("\n");
+        layanan.cetakPetunjukLayanan();
+        System.out.println("---------------------------------------------");
+        System.out.println("!Terima kasih telah menggunakan layanan Boothify!");
+        System.out.println("---------------------------------------------\n");
+    }
+    
+    public static void cetakNotaSewaNama(String nama, LayananBooth[] daftarSewa, int totalData){
+        boolean ditemukan = false;
+        for(int i = 0; i < totalData; i++){
+            if (daftarSewa[i].getNama().equalsIgnoreCase(nama)){
+                cetakNotaSewa(daftarSewa[i]);
+                ditemukan = true;
+                break;
+            }
+        }
+        if (!ditemukan){
+            System.out.println("\n Data penyewa dengan nama" + nama + "tidak ditemukan.");
+        }
+    }
+    
     public static LayananBooth inputDataSewa(Scanner scanner, int nomor) {
-        System.out.print("\nData ke-" + nomor + " | Tipe Booth (1. Physical / 2. Virtual): ");
+        System.out.print("\nData ke-" + nomor + " | Tipe Booth (1. Physical / 2. Virtual / 3. Express): ");
         int tipe = scanner.nextInt(); 
         scanner.nextLine();
         System.out.print("Nama Penyewa: "); 
@@ -52,20 +77,35 @@ public class Boothify {
         int durasi = scanner.nextInt();
         scanner.nextLine();
 
-        if (tipe == 1) {
-            System.out.print("Ukuran (Compact/Deluxe/Grand): "); 
-            String uk = scanner.nextLine();
-            System.out.print("Cetak Fisik? (true/false): "); 
-            boolean cetak = scanner.nextBoolean(); 
-            scanner.nextLine();
-            return new PhysicalBooth(nama, durasi, uk, cetak);
-        } else {
-            System.out.print("Nama Frame: "); 
-            String frame = scanner.nextLine();
-            System.out.print("Max User: "); 
-            int cap = scanner.nextInt(); 
-            scanner.nextLine();
-            return new VirtualBooth(nama, durasi, frame, cap);
+        switch (tipe){
+            case 1 -> {
+                System.out.print("Ukuran (Compact/Deluxe/Grand): "); 
+                String uk = scanner.nextLine();
+                System.out.print("Cetak Fisik? (true/false): "); 
+                boolean cetak = scanner.nextBoolean(); 
+                scanner.nextLine();
+                return new PhysicalBooth(nama, durasi, uk, cetak);
+            }
+            case 2 -> {
+                System.out.print("Nama Frame: "); 
+                String frame = scanner.nextLine();
+                System.out.print("Max User: "); 
+                int cap = scanner.nextInt(); 
+                scanner.nextLine();
+                return new VirtualBooth(nama, durasi, frame, cap);
+            }
+            case 3 -> {
+                System.out.print("Jenis Kamera (Polaroid/DSLR): "); 
+                String kamera = scanner.nextLine();
+                System.out.print("Jumlah Property: "); 
+                int property = scanner.nextInt(); 
+                scanner.nextLine();
+                return new ExpressBooth(nama, durasi, kamera, property);    
+            }
+            default -> {
+                System.out.println("Tipe tidak valid! Menggunakan Express Booth secara default.");
+                return new ExpressBooth(nama, durasi, "Standard", 5);
+            }
         }
     }
     
@@ -96,8 +136,9 @@ public class Boothify {
             System.out.println("1. Tambah Pesanan Sewa Booth Baru");
             System.out.println("2. Tampilkan Seluruh Pesanan Sewa");
             System.out.println("3. Cari Pesanan Sewa");
-            System.out.println("4. Keluar");
-            System.out.print("Pilih opsi (1-4): ");
+            System.out.println("4. Cetak Nota Pembayaran Pesanan");
+            System.out.println("5. Keluar");
+            System.out.print("Pilih opsi (1-5): ");
 
             int pilihan = scanner.nextInt();
             scanner.nextLine();
@@ -142,7 +183,19 @@ public class Boothify {
                         System.out.println("Mode pencarian tidak valid!");
                     }
                 }
+                
                 case 4 -> {
+                    System.out.println("\n---- Cetak Nota Pembayaran ----");
+                    if (totalSewa == 0){
+                        System.out.println("Belum ada data pesanan untuk dicetak nota.");
+                        break;
+                    }
+                    System.out.print("Masukkan Nama Penyewa: ");
+                    String namaCetak = scanner.nextLine();
+                    
+                    cetakNotaSewaNama(namaCetak, daftarSewa, totalSewa);
+                }
+                case 5 -> {
                     System.out.println("Terima kasih!");
                     isRunning = false;
                 }
