@@ -8,7 +8,7 @@ package com.mycompany.boothify;
  *
  * @author Annisa
  */
-public class VirtualBooth extends LayananBooth{
+public class VirtualBooth extends LayananBooth implements DapatDidiskon{
     private String domainFrame;
     private int kapasitasUser;
     
@@ -34,5 +34,16 @@ public class VirtualBooth extends LayananBooth{
     @Override
     public void cetakPetunjukLayanan(){
         System.out.println("Petunjuk: Tautan booth virtual dan link QR code akses siap digunakan 15 menit sebelum acara.");
+    }
+    
+    @Override
+    public void hitungDendaKeterlambatan(){
+        System.out.println("! Aturan Denda Virtual Booth: Rp50.000 per jam keterlambatan penutupan server virtual. !");
+    }
+    
+    @Override
+    public void terapkanDiskon(double persentase) {
+        double diskon = hitungTotalBiaya() * (persentase / 100.0);
+        System.out.printf("-Diskon- Virtual Booth mendapat potongan %s%% (Hemat Rp%,.0f)%n", persentase, diskon);
     }
 }

@@ -8,7 +8,7 @@ package com.mycompany.boothify;
  *
  * @author Annisa
  */
-public class LayananBooth {
+public abstract class LayananBooth {
     private String nama;
     private int durasiJam;
     private double hargaPerJam;
@@ -57,4 +57,6 @@ public class LayananBooth {
     public void cetakPetunjukLayanan(){
         System.out.println("-- Layanan photo booth Boothify --");
     }
+    
+    public abstract void hitungDendaKeterlambatan();
 }

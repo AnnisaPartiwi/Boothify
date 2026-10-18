@@ -8,7 +8,7 @@ package com.mycompany.boothify;
  *
  * @author Annisa
  */
-public class PhysicalBooth extends LayananBooth {
+public class PhysicalBooth extends LayananBooth implements DapatDibatalkan, DapatDidiskon {
     private String ukuranBooth;
     private boolean cetakFisik;
     
@@ -43,6 +43,22 @@ public class PhysicalBooth extends LayananBooth {
     @Override
     public void cetakPetunjukLayanan(){
         System.out.println("Petunjuk: Booth fisik dan kru operasional akan hadir 1 jam sebelum acara dimulai.");
+    }
+    
+    @Override
+    public void hitungDendaKeterlambatan(){
+        System.out.println("! Aturan Denda Physical Booth: Rp150.000 per jam keterlambatan pembongkaran booth. !");
+    }
+    
+    @Override
+    public void batalkanPesanan(){
+        System.out.println("-Pembatalan-  Pembatalan Physical Booth memotong deposit sebesar 20%.");
+    }
+    
+    @Override
+    public void terapkanDiskon(double persentase){
+        double diskon = hitungTotalBiaya() * (persentase / 100.0);
+        System.out.printf("-Diskon- Physical Booth mendapat potongan %s%% (Hemat Rp%,.0f)%n", persentase, diskon);
     }
 }
 

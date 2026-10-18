@@ -42,28 +42,54 @@ public class Boothify {
         }
     }
     
-    public static void cetakNotaSewa(LayananBooth layanan){
-        System.out.println("\n----------------------------------------------");
-        System.out.println("          BOOTHIFY PHOTO BOOTH NOTA           \n");
+    public static double cetakNotaSewa(LayananBooth layanan){
         layanan.tampilkanRincianSewa();
-        System.out.println("\n");
         layanan.cetakPetunjukLayanan();
-        System.out.println("---------------------------------------------");
-        System.out.println("!Terima kasih telah menggunakan layanan Boothify!");
-        System.out.println("---------------------------------------------\n");
+        layanan.hitungDendaKeterlambatan();
+        
+        if (layanan instanceof DapatDidiskon){
+            DapatDidiskon itemDiskon = (DapatDidiskon) layanan;
+            itemDiskon.terapkanDiskon(10.0);
+        }
+        if (layanan instanceof DapatDibatalkan){
+            DapatDibatalkan itemBatal = (DapatDibatalkan) layanan;
+            itemBatal.batalkanPesanan();
+        }
+        
+        System.out.println("------------------------------------------------");
+        return layanan.hitungTotalBiaya();
     }
+    
     
     public static void cetakNotaSewaNama(String nama, LayananBooth[] daftarSewa, int totalData){
         boolean ditemukan = false;
+        double totalHargaGabungan = 0;
+        int count = 0;
+                
+        System.out.println("\n--------------------------------------------------");
+        System.out.println("           BOOTHIFY PHOTO BOOTH NOTA              ");
+        System.out.println(" Pelanggan: " + nama);
+        System.out.println("--------------------------------------------------");
+        
         for(int i = 0; i < totalData; i++){
             if (daftarSewa[i].getNama().equalsIgnoreCase(nama)){
-                cetakNotaSewa(daftarSewa[i]);
                 ditemukan = true;
-                break;
+                count++;
+                System.out.println("- Item Pesanan Ke-" + count + " -");
+                
+                cetakNotaSewa(daftarSewa[i]);
+                totalHargaGabungan += daftarSewa[i].hitungTotalBiaya();
             }
         }
-        if (!ditemukan){
+        
+        if (ditemukan){ 
+            System.out.printf(" TOTAL SELURUH PEMBAYARAN: Rp%,.0f%n", totalHargaGabungan);
+            System.out.println("--------------------------------------------------");
+            System.out.println(" Terima kasih telah menggunakan layanan Boothify!");
+            System.out.println("--------------------------------------------------\n");
+        }else{
             System.out.println("\n Data penyewa dengan nama" + nama + "tidak ditemukan.");
+            System.out.println("--------------------------------------------------\n");
         }
     }
     
@@ -163,6 +189,18 @@ public class Boothify {
                         System.out.print((i + 1) + ". ");
                         daftarSewa[i].tampilkanRincianSewa();
                         daftarSewa[i].cetakPetunjukLayanan();
+                        
+                        daftarSewa[i].hitungDendaKeterlambatan();
+                        
+                        if (daftarSewa[i] instanceof DapatDibatalkan) {
+                            DapatDibatalkan itemBatal = (DapatDibatalkan) daftarSewa[i];
+                            itemBatal.batalkanPesanan();
+                        }
+                        if (daftarSewa[i] instanceof DapatDidiskon) {
+                            DapatDidiskon itemDiskon = (DapatDidiskon) daftarSewa[i];
+                            itemDiskon.terapkanDiskon(10.0);
+                        }
+                        System.out.println("------------------------------------------------");
                     }
                     System.out.println("\nTotal Transaksi: " + LayananBooth.totalTransaksiBerhasil);
                 }

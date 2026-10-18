@@ -8,7 +8,7 @@ package com.mycompany.boothify;
  *
  * @author Annisa
  */
-public class ExpressBooth extends LayananBooth {
+public class ExpressBooth extends LayananBooth implements DapatDibatalkan{
     private String jenisKamera;
     private int jumlahProperty;
     
@@ -28,11 +28,21 @@ public class ExpressBooth extends LayananBooth {
     
     @Override
     public void tampilkanRincianSewa(){
-        System.out.printf("[Express Booth ] Penyewa: %-12s | Durasi: %d Jam | Kamera: %-9s | Props: %-5d | Total: Rp%,.0f%n", getNama(), getDurasiJam(), this.jenisKamera, this.jumlahProperty, hitungTotalBiaya());
+        System.out.printf("[Express Booth ] Penyewa: %-12s | Durasi: %d Jam | Kamera: %-9s | Properti: %-5d | Total: Rp%,.0f%n", getNama(), getDurasiJam(), this.jenisKamera, this.jumlahProperty, hitungTotalBiaya());
     }
     
     @Override
     public void cetakPetunjukLayanan(){
     System.out.println("Petunjuk: Kit photo booth self-service mandiri disiapkan dan diantar 30 menit sebelum acara.");
+    }
+    
+    @Override 
+    public void hitungDendaKeterlambatan(){
+        System.out.println("! Aturan Denda Express Booth: Rp75.000 per jam keterlambatan pengembalian kit peralatan. !");
+    }
+    
+    @Override
+    public void batalkanPesanan(){
+        System.out.println("-Pembatalan- Express Booth dapat dibatalkan gratis hingga 2 jam sebelum acara.");
     }
 }
