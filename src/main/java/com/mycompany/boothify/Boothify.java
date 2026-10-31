@@ -9,36 +9,25 @@ package com.mycompany.boothify;
  * @author Annisa
  */
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Boothify {
-    public static void cariSewa(String nama, LayananBooth[] daftarSewa, int totalData){
+    public static void cariSewa(String nama, ArrayList<LayananBooth> daftarSewa) throws PesananTidakDitemukan {
        System.out.println("\nHasil Pencarian Berdasarkan Nama: " + nama );
         boolean ditemukan = false;
-        for (int i = 0; i < totalData; i++) {
-            if (daftarSewa[i].getNama().equalsIgnoreCase(nama)) {
-                daftarSewa[i].tampilkanRincianSewa();
-                daftarSewa[i].cetakPetunjukLayanan();
+        for (LayananBooth booth : daftarSewa) {
+            if (booth.getNama().equalsIgnoreCase(nama)) {
+                booth.tampilkanRincianSewa();
+                booth.cetakPetunjukLayanan();
+                booth.hitungDendaKeterlambatan();
                 ditemukan = true;
             }
         } 
-        if(!ditemukan){
-            System.out.println("Data penyewa dengan nama " + nama + " tidak ditemukan.");
-        }
-    }
-    
-    public static void cariSewa(int durasi, LayananBooth[] daftarSewa, int totalData){
-        System.out.println("\nHasil Pencarian Berdasarkan Durasi: " + durasi + " Jam");
-        boolean ditemukan = false;
-        for (int i = 0; i < totalData; i++) {
-            if (daftarSewa[i].getDurasiJam() == durasi) {
-                daftarSewa[i].tampilkanRincianSewa();
-                daftarSewa[i].cetakPetunjukLayanan();
-                ditemukan = true;
-            }
-        }
         if (!ditemukan) {
-            System.out.println("Data sewa dengan durasi " + durasi + " jam tidak ditemukan.");
+            throw new PesananTidakDitemukan("Gagal: Pesanan dengan nama '" + nama + "' tidak ditemukan!");
         }
     }
     
@@ -61,24 +50,22 @@ public class Boothify {
     }
     
     
-    public static void cetakNotaSewaNama(String nama, LayananBooth[] daftarSewa, int totalData){
+    public static void cetakNotaSewaNama(String nama, ArrayList<LayananBooth> daftarSewa) throws PesananTidakDitemukan {
         boolean ditemukan = false;
         double totalHargaGabungan = 0;
         int count = 0;
-                
+           
         System.out.println("\n--------------------------------------------------");
         System.out.println("           BOOTHIFY PHOTO BOOTH NOTA              ");
         System.out.println(" Pelanggan: " + nama);
         System.out.println("--------------------------------------------------");
         
-        for(int i = 0; i < totalData; i++){
-            if (daftarSewa[i].getNama().equalsIgnoreCase(nama)){
+        for(LayananBooth booth : daftarSewa){
+            if (booth.getNama().equalsIgnoreCase(nama)){
                 ditemukan = true;
                 count++;
                 System.out.println("- Item Pesanan Ke-" + count + " -");
-                
-                cetakNotaSewa(daftarSewa[i]);
-                totalHargaGabungan += daftarSewa[i].hitungTotalBiaya();
+                totalHargaGabungan += cetakNotaSewa(booth);
             }
         }
         
@@ -88,8 +75,7 @@ public class Boothify {
             System.out.println(" Terima kasih telah menggunakan layanan Boothify!");
             System.out.println("--------------------------------------------------\n");
         }else{
-            System.out.println("\n Data penyewa dengan nama" + nama + "tidak ditemukan.");
-            System.out.println("--------------------------------------------------\n");
+            throw new PesananTidakDitemukan("Gagal Cetak Nota: Data pesanan atas nama " + nama + " tidak ditemukan");
         }
     }
     
@@ -137,24 +123,33 @@ public class Boothify {
     
     public static void main(String[] args){
         Scanner scanner = new Scanner(System.in);
-        LayananBooth[] daftarSewa = new LayananBooth[50];
-        int totalSewa = 0;
-        boolean isRunning = true;
+        ArrayList<LayananBooth> daftarSewa = new ArrayList<>();
+        HashMap<String, String> dataProperty = new HashMap<>();
         
+        dataProperty.put("PROP01", "Paket Fun (5 Kacamata Oversize + 3 Papan Tulisan Lucu)");
+        dataProperty.put("PROP02", "Paket Party (Topi Ulang Tahun + Bando Karakter + Party Popper)");
+        dataProperty.put("PROP03", "Paket Elegant (Bando Mutiara + Topi Fedora + Kacamata Hitam Deluxe)");
+        
+        boolean isRunning = true;
+       
         System.out.println("==================================================");
         System.out.println("      SELAMAT DATANG DI BOOTHIFY PHOTO BOOTH     ");
         System.out.println("==================================================");
         
+        
         System.out.print("\nMasukkan jumlah data pesanan sewa awal yang ingin diinputkan: ");
-        int jumlahAwal = scanner.nextInt();
-        scanner.nextLine();
+        try{
+            int jumlahAwal = scanner.nextInt();
+            scanner.nextLine();
 
-        for (int i = 0; i < jumlahAwal; i++) {
-            daftarSewa[totalSewa] = inputDataSewa(scanner, i + 1);
-            totalSewa++;
+            for (int i = 0; i < jumlahAwal; i++) {
+                daftarSewa.add(inputDataSewa(scanner, i + 1));
+            }
+            System.out.println("\nSuccess: Berhasil menginputkan " + jumlahAwal + " data pesanan awal\n");
+        }catch (Exception e){
+            System.out.println("\nGagal menginput data awal: " + e.getMessage());
+            scanner.nextLine();
         }
-
-        System.out.println("\n-> Success: Berhasil menginputkan " + jumlahAwal + " data pesanan awal!\n");
         
         while (isRunning) {
             System.out.println("\n==================================================");
@@ -163,81 +158,130 @@ public class Boothify {
             System.out.println("2. Tampilkan Seluruh Pesanan Sewa");
             System.out.println("3. Cari Pesanan Sewa");
             System.out.println("4. Cetak Nota Pembayaran Pesanan");
-            System.out.println("5. Keluar");
-            System.out.print("Pilih opsi (1-5): ");
+            System.out.println("5. Katalog Paket Property Booth");
+            System.out.println("6. Keluar");
+            System.out.print("Pilih opsi (1-6): ");
+            System.out.println("\n==================================================");
+            
+            try {
+                int pilihan = scanner.nextInt();
+                scanner.nextLine();
 
-            int pilihan = scanner.nextInt();
-            scanner.nextLine();
-                    
             switch (pilihan) {
                 case 1 -> {
-                    if (totalSewa < daftarSewa.length) {
-                        daftarSewa[totalSewa] = inputDataSewa(scanner, totalSewa + 1);
-                        totalSewa++;
-                        System.out.println("-> berhasil ditambahkan!");
-                    } else {
-                        System.out.println("kapasitas sudah penuh.");
-                    }
+                    daftarSewa.add(inputDataSewa(scanner, daftarSewa.size() + 1));
+                        System.out.println("Berhasil ditambahkan! Total data: " + daftarSewa.size());
                 }
                 
                 case 2 -> {
                     System.out.println("\n=== DAFTAR PESANAN BOOTHIFY ===");
-                    if (totalSewa == 0) {
+                    if (daftarSewa.isEmpty()) {
                         System.out.println("Belum ada data.");
-                    }
-                    for (int i = 0; i < totalSewa; i++) {
-                        System.out.print((i + 1) + ". ");
-                        daftarSewa[i].tampilkanRincianSewa();
-                        daftarSewa[i].cetakPetunjukLayanan();
-                        
-                        daftarSewa[i].hitungDendaKeterlambatan();
-                        
-                        if (daftarSewa[i] instanceof DapatDibatalkan) {
-                            DapatDibatalkan itemBatal = (DapatDibatalkan) daftarSewa[i];
-                            itemBatal.batalkanPesanan();
+                    }else{
+                        for (int i = 0; i < daftarSewa.size(); i++) {
+                                System.out.print((i + 1) + ". ");
+                                daftarSewa.get(i).tampilkanRincianSewa();
+                                daftarSewa.get(i).cetakPetunjukLayanan();
+                                daftarSewa.get(i).hitungDendaKeterlambatan();
+
+                                if (daftarSewa.get(i) instanceof DapatDibatalkan) {
+                                    DapatDibatalkan itemBatal = (DapatDibatalkan) daftarSewa.get(i);
+                                    itemBatal.batalkanPesanan();
+                                }
+                                if (daftarSewa.get(i) instanceof DapatDidiskon) {
+                                    DapatDidiskon itemDiskon = (DapatDidiskon) daftarSewa.get(i);
+                                    itemDiskon.terapkanDiskon(10.0);
+                                }
+                            System.out.println("------------------------------------------------");
                         }
-                        if (daftarSewa[i] instanceof DapatDidiskon) {
-                            DapatDidiskon itemDiskon = (DapatDidiskon) daftarSewa[i];
-                            itemDiskon.terapkanDiskon(10.0);
-                        }
-                        System.out.println("------------------------------------------------");
+                        System.out.println("\nTotal Transaksi: " + LayananBooth.totalTransaksiBerhasil);
                     }
-                    System.out.println("\nTotal Transaksi: " + LayananBooth.totalTransaksiBerhasil);
                 }
                 
                 case 3 -> {
-                    System.out.print("Cari berdasarkan (1. Nama / 2. Durasi): ");
-                    int mode = scanner.nextInt();
-                    scanner.nextLine();
-                    if (mode == 1) {
-                        System.out.print("Nama Penyewa: ");
-                        cariSewa(scanner.nextLine(), daftarSewa, totalSewa);
-                    } else if (mode == 2) {
-                        System.out.print("Durasi Jam: ");
-                        int durasiCari = scanner.nextInt();
-                        scanner.nextLine();
-                        cariSewa(durasiCari, daftarSewa, totalSewa);
-                    } else {
-                        System.out.println("Mode pencarian tidak valid!");
+                    System.out.println("\n--- Fitur Cari Pesanan ---");
+                    if (daftarSewa.isEmpty()) {
+                        System.out.println("Belum ada data pesanan.");
+                        break;
+                    }
+                    System.out.print("Masukkan Nama Penyewa yang Dicari: ");
+                    String namaCari = scanner.nextLine();
+        
+                    try {
+                        cariSewa(namaCari, daftarSewa);
+                    } catch (PesananTidakDitemukan e) {
+                        System.out.println("Peringatan: " + e.getMessage());
+                    } finally {
+                        System.out.println("Sesi pencarian pesanan selesai dieksekusi.");
                     }
                 }
                 
                 case 4 -> {
                     System.out.println("\n---- Cetak Nota Pembayaran ----");
-                    if (totalSewa == 0){
+                    if (daftarSewa.isEmpty()) {
                         System.out.println("Belum ada data pesanan untuk dicetak nota.");
                         break;
                     }
                     System.out.print("Masukkan Nama Penyewa: ");
                     String namaCetak = scanner.nextLine();
-                    
-                    cetakNotaSewaNama(namaCetak, daftarSewa, totalSewa);
+        
+                    try {
+                        cetakNotaSewaNama(namaCetak, daftarSewa);
+                    } catch (PesananTidakDitemukan e) {
+                        System.out.println("Peringatan: " + e.getMessage());
+                    } finally {
+                        System.out.println("Sesi cetak nota selesai dieksekusi.");
+                    }
                 }
+                
                 case 5 -> {
-                    System.out.println("Terima kasih!");
-                    isRunning = false;
+                    System.out.println("\n-- KATALOG PAKET PROPERTY BOOTH --");
+                    System.out.println("1. Lihat Daftar Paket Property Tersedia");
+                    System.out.println("2. Pilih/Cek Detail Paket via Kode");
+                    System.out.println("3. Tambah Paket Custom Baru");
+                    System.out.print("Pilih (1-3): ");
+                    int menuProp = scanner.nextInt();
+                    scanner.nextLine();
+                    
+                    if (menuProp == 1){
+                        System.out.println("\n--- Daftar Paket Property Tersedia ---");
+                        for (String kode : dataProperty.keySet()) {
+                            System.out.println("- Kode: " + kode + " | " + dataProperty.get(kode));
+                        }
+                    } else if (menuProp == 2){
+                        System.out.print("\nMasukkan Kode Paket yang Ingin Dipilih (misal: PROP01): ");
+                        String kodePilih = scanner.nextLine().toUpperCase();
+
+                        if (dataProperty.containsKey(kodePilih)) {
+                            System.out.println("\nAnda Memilih: " + dataProperty.get(kodePilih));
+                            System.out.println("Status: Paket siap ditambahkan ke pesanan Boothify!");
+                        } else {
+                            System.out.println("\nKode paket '" + kodePilih + "' tidak ditemukan dalam sistem.");
+                        }
+                    } else if (menuProp == 3){
+                        System.out.print("Masukkan Kode Paket Baru: ");
+                        String kodeBaru = scanner.nextLine().toUpperCase();
+                        System.out.print("Masukkan Deskripsi Isi Paket: ");
+                        String isiBaru = scanner.nextLine();
+
+                        dataProperty.put(kodeBaru, isiBaru);
+                        System.out.println("Success: Paket baru berhasil ditambahkan ke katalog sistem!");
+                    } else {
+                        System.out.println("Pilihan menu tidak valid!");
+                    }
                 }
-                default -> System.out.println("Opsi tidak valid!");
+                
+                case 6 -> {
+                        System.out.println("Terima kasih!");
+                        isRunning = false;
+                    }
+                    default -> System.out.println("Opsi menu tidak valid!");
+                }
+            }catch (InputMismatchException e) {
+                System.out.println("\n!ERROR SYSTEM: Input harus berupa angka!");
+                scanner.nextLine();
+            } catch (Exception e) {
+                System.out.println("\n! ERROR SYSTEM: " + e.getMessage());
             }
         }
         scanner.close();
