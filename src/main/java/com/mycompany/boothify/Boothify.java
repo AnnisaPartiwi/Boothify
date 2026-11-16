@@ -61,6 +61,7 @@ public class Boothify {
         
         ManajemenBoothify sistemBoothify = new ManajemenBoothify("Sistem Operasional Boothify");
         sistemBoothify.bukaSistem();
+        sistemBoothify.muatDataDariFile();
         
         boolean isRunning = true;
        
@@ -77,8 +78,9 @@ public class Boothify {
             System.out.println("4. Manajemen Pelanggan");
             System.out.println("5. Transaksi Sewa Booth");
             System.out.println("6. Katalog Paket Property");
-            System.out.println("7. Keluar");
-            System.out.print("Pilih opsi (1-7): ");
+            System.out.println("7. Lihat Riwayat Log Transaksi");
+            System.out.println("8. Keluar");
+            System.out.print("Pilih opsi (1-8): ");
             System.out.println("\n==================================================");
             
             try {
@@ -207,6 +209,12 @@ public class Boothify {
                     }
                     
                     case 7 -> {
+                        sistemBoothify.bacaLogTransaksi();
+                    }
+                    
+                    case 8 -> {
+                        System.out.println("Menyimpan sesi ke penyimpanan internal");
+                        sistemBoothify.simpanDataKeFile();
                         System.out.println("\nTerima kasih telah menggunakan Sistem Operasional Boothify!");
                         isRunning = false;
                     }

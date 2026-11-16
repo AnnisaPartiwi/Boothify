@@ -9,8 +9,10 @@ package com.mycompany.boothify;
  * @author Annisa
  */
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Scanner;
         
 public class ManajemenBoothify {
     private String namaSistem;
@@ -108,5 +110,59 @@ public class ManajemenBoothify {
 
     public int getJumlahSewa() {
         return daftarSewa.size();
+    }
+    
+    public void simpanDataKeFile() {
+        try {
+            FileOutputStream fileKeluar = new FileOutputStream("data_boothify.dat");
+            ObjectOutputStream mesinPembeku = new ObjectOutputStream(fileKeluar);
+
+            mesinPembeku.writeObject(this.daftarSewa);
+            mesinPembeku.writeObject(this.dataPelanggan);
+
+            mesinPembeku.close();
+            System.out.println("-> [SYSTEM LOG] Seluruh data berhasil disimpan (Serialization) ke data_boothify.dat!");
+        } catch (Exception e) {
+            System.out.println("-> [SYSTEM ERROR] Gagal menyimpan data: " + e.getMessage());
+        }
+    }
+    
+    @SuppressWarnings("unchecked")
+    public void muatDataDariFile() {
+        try {
+            File cekFile = new File("data_boothify.dat");
+            if (!cekFile.exists()) {
+                return;
+            }
+            
+            FileInputStream fileMasuk = new FileInputStream(cekFile);
+            ObjectInputStream mesinPembangkit = new ObjectInputStream(fileMasuk);
+            this.daftarSewa = (ArrayList<LayananBooth>) mesinPembangkit.readObject();
+            this.dataPelanggan = (HashMap<String, Pelanggan>) mesinPembangkit.readObject();
+            mesinPembangkit.close();
+            
+            System.out.println("-> [SYSTEM LOG] Data sistem berhasil dimuat ulang (Deserialization) dari penyimpanan!");
+        } catch (Exception e) {
+            System.out.println("-> [SYSTEM ERROR] Gagal memuat data: " + e.getMessage());
+        }
+    }
+    
+    public void bacaLogTransaksi() {
+        System.out.println("\n--- Riwayat Log Transaksi Boothify ---");
+        try {
+            File fileLog = new File("log_transaksi.txt");
+            if (!fileLog.exists()) {
+                System.out.println("Belum ada catatan log transaksi.");
+                return;
+            }
+
+            Scanner mesinBaca = new Scanner(fileLog);
+            while (mesinBaca.hasNextLine()) {
+                System.out.println(mesinBaca.nextLine());
+            }
+            mesinBaca.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("Gagal membuka file log: " + e.getMessage());
+        }
     }
 }

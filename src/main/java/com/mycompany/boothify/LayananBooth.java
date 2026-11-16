@@ -8,7 +8,11 @@ package com.mycompany.boothify;
  *
  * @author Annisa
  */
-public abstract class LayananBooth {
+
+import java.io.Serializable;
+
+public abstract class LayananBooth implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String nama;
     private int durasiJam;
     private double hargaPerJam;
